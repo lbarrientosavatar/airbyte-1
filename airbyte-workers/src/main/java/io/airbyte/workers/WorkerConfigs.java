@@ -7,6 +7,7 @@ package io.airbyte.workers;
 import io.airbyte.config.Configs;
 import io.airbyte.config.ResourceRequirements;
 import io.airbyte.config.TolerationPOJO;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,10 @@ public class WorkerConfigs {
   private final String jobBusyboxImage;
   private final String jobCurlImage;
   private final Map<String, String> envMap;
+  private final Duration workerStatusCheckInterval;
+
+  private static final Duration DEFAULT_WORKER_STATUS_CHECK_INTERVAL = Duration.ofSeconds(30);
+  private static final Duration CHECK_WORKER_STATUS_CHECK_INTERVAL = Duration.ofSeconds(1);
 
   /**
    * Constructs a job-type-agnostic WorkerConfigs. For WorkerConfigs customized for specific
@@ -43,7 +48,8 @@ public class WorkerConfigs {
         configs.getJobKubeSocatImage(),
         configs.getJobKubeBusyboxImage(),
         configs.getJobKubeCurlImage(),
-        configs.getJobDefaultEnvMap());
+        configs.getJobDefaultEnvMap(),
+        DEFAULT_WORKER_STATUS_CHECK_INTERVAL);
   }
 
   /**
@@ -64,7 +70,8 @@ public class WorkerConfigs {
         configs.getJobKubeSocatImage(),
         configs.getJobKubeBusyboxImage(),
         configs.getJobKubeCurlImage(),
-        configs.getJobDefaultEnvMap());
+        configs.getJobDefaultEnvMap(),
+        CHECK_WORKER_STATUS_CHECK_INTERVAL);
   }
 
   public Configs.WorkerEnvironment getWorkerEnvironment() {
@@ -105,6 +112,10 @@ public class WorkerConfigs {
 
   public Map<String, String> getEnvMap() {
     return envMap;
+  }
+
+  public Duration getWorkerStatusCheckInterval() {
+    return workerStatusCheckInterval;
   }
 
 }

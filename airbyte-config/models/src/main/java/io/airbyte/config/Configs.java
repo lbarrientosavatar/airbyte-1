@@ -235,6 +235,7 @@ public interface Configs {
    */
   Map<String, String> getJobDefaultEnvMap();
 
+  // Jobs - Kube only
   /**
    * Define one or more Job pod tolerations. Tolerations are separated by ';'. Each toleration
    * contains k=v pairs mentioning some/all of key, effect, operator and value and separated by `,`.
