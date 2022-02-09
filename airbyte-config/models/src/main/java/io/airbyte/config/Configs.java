@@ -235,7 +235,6 @@ public interface Configs {
    */
   Map<String, String> getJobDefaultEnvMap();
 
-  // Jobs - Kube only
   /**
    * Define one or more Job pod tolerations. Tolerations are separated by ';'. Each toleration
    * contains k=v pairs mentioning some/all of key, effect, operator and value and separated by `,`.
@@ -246,6 +245,11 @@ public interface Configs {
    * Define one or more Job pod node selectors. Each kv-pair is separated by a `,`.
    */
   Map<String, String> getJobKubeNodeSelectors();
+
+  /**
+   * Define node selectors for Check job pods specifically. Each kv-pair is separated by a `,`.
+   */
+  Map<String, String> getCheckJobKubeNodeSelectors();
 
   /**
    * Define the Job pod connector image pull policy.

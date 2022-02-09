@@ -33,7 +33,7 @@ public class EnvConfigs implements Configs {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EnvConfigs.class);
 
-  // env variable names
+  /* env variable names */
   public static final String AIRBYTE_ROLE = "AIRBYTE_ROLE";
   public static final String AIRBYTE_VERSION = "AIRBYTE_VERSION";
   public static final String INTERNAL_API_HOST = "INTERNAL_API_HOST";
@@ -107,7 +107,9 @@ public class EnvConfigs implements Configs {
   public static final String ACTIVITY_MAX_ATTEMPT = "ACTIVITY_MAX_ATTEMPT";
   public static final String ACTIVITY_DELAY_IN_SECOND_BETWEEN_ATTEMPTS = "ACTIVITY_DELAY_IN_SECOND_BETWEEN_ATTEMPTS";
 
-  // defaults
+  public static final String CHECK_JOB_KUBE_NODE_SELECTORS = "CHECK_JOB_KUBE_NODE_SELECTORS";
+
+  /* defaults */
   private static final String DEFAULT_SPEC_CACHE_BUCKET = "io-airbyte-cloud-spec-cache";
   public static final String DEFAULT_JOB_KUBE_NAMESPACE = "default";
   private static final String DEFAULT_JOB_CPU_REQUIREMENT = null;
@@ -438,8 +440,29 @@ public class EnvConfigs implements Configs {
    */
   @Override
   public Map<String, String> getJobKubeNodeSelectors() {
+    return getNodeSelectorsFromEnvString(getEnvOrDefault(JOB_KUBE_NODE_SELECTORS, ""));
+  }
+
+  /**
+   * Returns a map of node selectors from its own environment variable for the Check job specifically.
+   * Falls back on JOB_KUBE_NODE_SELECTORS if CHECK_JOB_KUBE_NODE_SELECTORS is not set. The value of
+   * the env is a string that represents one or more node selector labels. Each kv-pair is separated
+   * by a `,`
+   * <p>
+   * For example:- The following represents two node selectors
+   * <p>
+   * airbyte=server,type=preemptive
+   *
+   * @return map containing kv pairs of node selectors
+   */
+  @Override
+  public Map<String, String> getCheckJobKubeNodeSelectors() {
+    return getNodeSelectorsFromEnvString(getEnvOrDefault(CHECK_JOB_KUBE_NODE_SELECTORS, getEnvOrDefault(JOB_KUBE_NODE_SELECTORS, "")));
+  }
+
+  private Map<String, String> getNodeSelectorsFromEnvString(final String envString) {
     return Splitter.on(",")
-        .splitToStream(getEnvOrDefault(JOB_KUBE_NODE_SELECTORS, ""))
+        .splitToStream(envString)
         .filter(s -> !Strings.isNullOrEmpty(s) && s.contains("="))
         .map(s -> s.split("="))
         .collect(Collectors.toMap(s -> s[0], s -> s[1]));

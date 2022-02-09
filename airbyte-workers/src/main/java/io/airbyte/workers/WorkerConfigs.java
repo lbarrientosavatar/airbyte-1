@@ -9,7 +9,9 @@ import io.airbyte.config.ResourceRequirements;
 import io.airbyte.config.TolerationPOJO;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class WorkerConfigs {
 
   private final Configs.WorkerEnvironment workerEnvironment;
@@ -23,21 +25,46 @@ public class WorkerConfigs {
   private final String jobCurlImage;
   private final Map<String, String> envMap;
 
+  /**
+   * Constructs a job-type-agnostic WorkerConfigs. For WorkerConfigs customized for specific
+   * job-types, use static `build*JOBTYPE*WorkerConfigs` method if one exists.
+   */
   public WorkerConfigs(final Configs configs) {
-    this.workerEnvironment = configs.getWorkerEnvironment();
-    this.resourceRequirements = new ResourceRequirements()
-        .withCpuRequest(configs.getJobMainContainerCpuRequest())
-        .withCpuLimit(configs.getJobMainContainerCpuLimit())
-        .withMemoryRequest(configs.getJobMainContainerMemoryRequest())
-        .withMemoryLimit(configs.getJobMainContainerMemoryLimit());
-    this.workerKubeTolerations = configs.getJobKubeTolerations();
-    this.workerKubeNodeSelectors = configs.getJobKubeNodeSelectors();
-    this.jobImagePullSecret = configs.getJobKubeMainContainerImagePullSecret();
-    this.jobImagePullPolicy = configs.getJobKubeMainContainerImagePullPolicy();
-    this.jobSocatImage = configs.getJobKubeSocatImage();
-    this.jobBusyboxImage = configs.getJobKubeBusyboxImage();
-    this.jobCurlImage = configs.getJobKubeCurlImage();
-    this.envMap = configs.getJobDefaultEnvMap();
+    this(configs.getWorkerEnvironment(),
+        new ResourceRequirements()
+            .withCpuRequest(configs.getJobMainContainerCpuRequest())
+            .withCpuLimit(configs.getJobMainContainerCpuLimit())
+            .withMemoryRequest(configs.getJobMainContainerMemoryRequest())
+            .withMemoryLimit(configs.getJobMainContainerMemoryLimit()),
+        configs.getJobKubeTolerations(),
+        configs.getJobKubeNodeSelectors(),
+        configs.getJobKubeMainContainerImagePullSecret(),
+        configs.getJobKubeMainContainerImagePullPolicy(),
+        configs.getJobKubeSocatImage(),
+        configs.getJobKubeBusyboxImage(),
+        configs.getJobKubeCurlImage(),
+        configs.getJobDefaultEnvMap());
+  }
+
+  /**
+   * Builds a WorkerConfigs with some configs that are specific to the Check job type.
+   */
+  public static WorkerConfigs buildCheckWorkerConfigs(final Configs configs) {
+    return new WorkerConfigs(
+        configs.getWorkerEnvironment(),
+        new ResourceRequirements()
+            .withCpuRequest(configs.getJobMainContainerCpuRequest())
+            .withCpuLimit(configs.getJobMainContainerCpuLimit())
+            .withMemoryRequest(configs.getJobMainContainerMemoryRequest())
+            .withMemoryLimit(configs.getJobMainContainerMemoryLimit()),
+        configs.getJobKubeTolerations(),
+        configs.getCheckJobKubeNodeSelectors(),
+        configs.getJobKubeMainContainerImagePullSecret(),
+        configs.getJobKubeMainContainerImagePullPolicy(),
+        configs.getJobKubeSocatImage(),
+        configs.getJobKubeBusyboxImage(),
+        configs.getJobKubeCurlImage(),
+        configs.getJobDefaultEnvMap());
   }
 
   public Configs.WorkerEnvironment getWorkerEnvironment() {
