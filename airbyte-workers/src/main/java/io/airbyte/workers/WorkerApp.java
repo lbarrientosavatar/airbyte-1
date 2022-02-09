@@ -317,10 +317,10 @@ public class WorkerApp {
     // for now, only Check jobs have job-specific configs, but since this will evolve, we instantiate
     // separate configs
     // for each job type to ease future customization.
-    final WorkerConfigs specWorkerConfigs = new WorkerConfigs(configs);
+    final WorkerConfigs specWorkerConfigs = WorkerConfigs.buildSpecWorkerConfigs(configs);
     final WorkerConfigs checkWorkerConfigs = WorkerConfigs.buildCheckWorkerConfigs(configs);
-    final WorkerConfigs discoverWorkerConfigs = new WorkerConfigs(configs);
-    final WorkerConfigs syncWorkerConfigs = new WorkerConfigs(configs);
+    final WorkerConfigs discoverWorkerConfigs = WorkerConfigs.buildDiscoverWorkerConfigs(configs);
+    final WorkerConfigs syncWorkerConfigs = WorkerConfigs.buildSyncWorkerConfigs(configs);
 
     final ProcessFactory specProcessFactory = getJobProcessFactory(configs, specWorkerConfigs);
     final ProcessFactory checkProcessFactory = getJobProcessFactory(configs, checkWorkerConfigs);
@@ -377,7 +377,7 @@ public class WorkerApp {
     final ConnectionHelper connectionHelper = new ConnectionHelper(
         configRepository,
         workspaceHelper,
-        syncWorkerConfigs);
+        new WorkerConfigs(configs));
 
     final Optional<ContainerOrchestratorConfig> containerOrchestratorConfig = getContainerOrchestratorConfig(configs);
 
